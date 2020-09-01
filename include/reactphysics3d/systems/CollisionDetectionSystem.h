@@ -57,6 +57,8 @@ class MemoryManager;
 class EventListener;
 class CollisionDispatch;
 
+typedef bool (*collisionCheckFunc_t)(Collider* a_lhs, Collider* a_rhs);
+
 // Class CollisionDetectionSystem
 /**
  * This class computes the collision detection algorithms. We first
@@ -165,6 +167,9 @@ class CollisionDetectionSystem {
 
         /// Map a body entity to the list of contact pairs in which it is involved
         Map<Entity, List<uint>> mMapBodyToContactPairs;
+
+        /// Collision filtering callback function
+        collisionCheckFunc_t m_collisionCheckFunc;
 
 #ifdef IS_RP3D_PROFILING_ENABLED
 
@@ -279,6 +284,9 @@ class CollisionDetectionSystem {
         /// Filter the overlapping pairs to keep only the pairs where two given bodies are involved
         void filterOverlappingPairs(Entity body1Entity, Entity body2Entity, List<uint64>& convexPairs, List<uint64>& concavePairs) const;
 
+        /// Run custom collision filtering function
+        bool shouldEntitiesCollide(Collider* collider1, Collider* collider2);
+
     public :
 
         // -------------------- Methods -------------------- //
@@ -361,6 +369,9 @@ class CollisionDetectionSystem {
         /// Return the world event listener
         EventListener* getWorldEventListener();
 
+        /// Set custom collision filtering function
+        void setCollisionCheckCallback(collisionCheckFunc_t a_func);
+
 #ifdef IS_RP3D_PROFILING_ENABLED
 
 		/// Set the profiler
@@ -438,6 +449,11 @@ inline void CollisionDetectionSystem::updateCollider(Entity colliderEntity, deci
 // Update all the enabled colliders
 inline void CollisionDetectionSystem::updateColliders(decimal timeStep) {
     mBroadPhaseSystem.updateColliders(timeStep);
+}
+
+// Set custom collision filtering function
+inline void CollisionDetectionSystem::setCollisionCheckCallback(collisionCheckFunc_t a_func) {
+    m_collisionCheckFunc = a_func;
 }
 
 #ifdef IS_RP3D_PROFILING_ENABLED

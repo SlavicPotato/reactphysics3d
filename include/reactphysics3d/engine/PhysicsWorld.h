@@ -461,6 +461,9 @@ class PhysicsWorld {
         /// Return a reference to the Debug Renderer of the world
         DebugRenderer& getDebugRenderer();
 
+        /// Set custom collision filtering function
+        void setCollisionCheckCallback(collisionCheckFunc_t callbackFunction);
+
 #ifdef IS_RP3D_PROFILING_ENABLED
 
         /// Return a reference to the profiler
@@ -740,6 +743,15 @@ inline void PhysicsWorld::setIsDebugRenderingEnabled(bool isEnabled) {
  */
 inline DebugRenderer& PhysicsWorld::getDebugRenderer() {
     return mDebugRenderer;
+}
+
+// Set custom collision filtering function
+/**
+ * @param callbackFunction Pointer to the callback function
+ */
+inline void PhysicsWorld::setCollisionCheckCallback(collisionCheckFunc_t callbackFunction)
+{
+    mCollisionDetection.setCollisionCheckCallback(callbackFunction);
 }
 
 }

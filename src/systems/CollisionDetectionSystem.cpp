@@ -67,7 +67,7 @@ CollisionDetectionSystem::CollisionDetectionSystem(PhysicsWorld* world, Collider
                      mContactManifolds2(mMemoryManager.getPoolAllocator()), mPreviousContactManifolds(&mContactManifolds1), mCurrentContactManifolds(&mContactManifolds2),
                      mContactPoints1(mMemoryManager.getPoolAllocator()),
                      mContactPoints2(mMemoryManager.getPoolAllocator()), mPreviousContactPoints(&mContactPoints1),
-                     mCurrentContactPoints(&mContactPoints2), mMapBodyToContactPairs(mMemoryManager.getSingleFrameAllocator()) {
+                     mCurrentContactPoints(&mContactPoints2), mMapBodyToContactPairs(mMemoryManager.getSingleFrameAllocator()), m_collisionCheckFunc(nullptr) {
 
 #ifdef IS_RP3D_PROFILING_ENABLED
 
@@ -212,11 +212,15 @@ void CollisionDetectionSystem::updateOverlappingPairs(const List<Pair<int32, int
                         Collider* shape1 = mCollidersComponents.mColliders[collider1Index];
                         Collider* shape2 = mCollidersComponents.mColliders[collider2Index];
 
-                        // Check that at least one collision shape is convex
-                        if (shape1->getCollisionShape()->isConvex() || shape2->getCollisionShape()->isConvex()) {
+                        // Pass through custom collision filtering function
+                        if (shouldEntitiesCollide(shape1, shape2)) {
 
-                            // Add the new overlapping pair
-                            mOverlappingPairs.addPair(shape1, shape2);
+                            // Check that at least one collision shape is convex
+                            if (shape1->getCollisionShape()->isConvex() || shape2->getCollisionShape()->isConvex()) {
+
+                                // Add the new overlapping pair
+                                mOverlappingPairs.addPair(shape1, shape2);
+                            }
                         }
                     }
                 }
@@ -1617,6 +1621,14 @@ void CollisionDetectionSystem::filterOverlappingPairs(Entity body1Entity, Entity
             }
         }
     }
+}
+
+// Run custom collision filtering function
+bool CollisionDetectionSystem::shouldEntitiesCollide(Collider* collider1, Collider* collider2) {
+    if (m_collisionCheckFunc == nullptr)
+        return true;
+
+    return m_collisionCheckFunc(collider1, collider2);
 }
 
 // Return the world event listener
