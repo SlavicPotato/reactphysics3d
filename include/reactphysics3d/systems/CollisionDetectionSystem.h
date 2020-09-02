@@ -242,9 +242,6 @@ class CollisionDetectionSystem {
         void reducePotentialContactManifolds(List<ContactPair>* contactPairs, List<ContactManifoldInfo>& potentialContactManifolds,
                                              const List<ContactPointInfo>& potentialContactPoints) const;
 
-        /// Create the actual contact manifolds and contacts points (from potential contacts) for a given contact pair
-        void createContacts();
-
         /// Compute the lost contact pairs (contact pairs in contact in the previous frame but not in the current one)
         void computeLostContactPairs();
 
@@ -286,6 +283,9 @@ class CollisionDetectionSystem {
 
         /// Run custom collision filtering function
         bool shouldEntitiesCollide(Collider* collider1, Collider* collider2);
+
+        /// Create the actual contact manifolds and contacts points (from potential contacts) for a given contact pair
+        void createContacts();
 
     public :
 
