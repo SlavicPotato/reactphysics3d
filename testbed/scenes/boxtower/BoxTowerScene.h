@@ -1,6 +1,6 @@
 /********************************************************************************
 * ReactPhysics3D physics library, http://www.reactphysics3d.com                 *
-* Copyright (c) 2010-2020 Daniel Chappuis                                       *
+* Copyright (c) 2010-2016 Daniel Chappuis                                       *
 *********************************************************************************
 *                                                                               *
 * This software is provided 'as-is', without any express or implied warranty.   *
@@ -23,50 +23,66 @@
 *                                                                               *
 ********************************************************************************/
 
-#ifndef REACTPHYSICS3D_SPHERE_VS_SPHERE_NARROW_PHASE_INFO_BATCH_H
-#define REACTPHYSICS3D_SPHERE_VS_SPHERE_NARROW_PHASE_INFO_BATCH_H
+#ifndef BOX_TOWER_SCENE_H
+#define BOX_TOWER_SCENE_H
 
 // Libraries
-#include <reactphysics3d/collision/narrowphase/NarrowPhaseInfoBatch.h>
+#include "openglframework.h"
+#include <reactphysics3d/reactphysics3d.h>
+#include "SceneDemo.h"
+#include "Sphere.h"
+#include "Box.h"
+#include "Capsule.h"
+#include "ConvexMesh.h"
+#include "ConcaveMesh.h"
+#include "Dumbbell.h"
+#include "VisualContactPoint.h"
 
-/// Namespace ReactPhysics3D
-namespace reactphysics3d {
+namespace boxtowerscene {
 
-// Struct SphereVsSphereNarrowPhaseInfoBatch
-/**
- * This structure collects all the potential collisions from the middle-phase algorithm
- * that have to be tested during narrow-phase collision detection. This class collects all the
- * sphere vs sphere collision detection tests.
- */
-struct SphereVsSphereNarrowPhaseInfoBatch : public NarrowPhaseInfoBatch {
+// Constants
+const float SCENE_RADIUS = 30.0f;
+const int NB_BOXES = 16;
+const openglframework::Vector3 BOX_SIZE(2, 2, 16);
+const openglframework::Vector3 FLOOR_SIZE(50, 0.5f, 50);        // Floor dimensions in meters
+
+// Class BoxTowerScene
+class BoxTowerScene : public SceneDemo {
+
+    private :
+
+        // -------------------- Attributes -------------------- //
+
+        /// All the boxes of the scene
+        std::vector<Box*> mBoxes;
+
+        std::vector<Sphere*> mSpheres;
+
+        std::vector<Capsule*> mCapsules;
+
+        /// All the convex meshes of the scene
+        std::vector<ConvexMesh*> mConvexMeshes;
+
+        /// All the dumbbell of the scene
+        std::vector<Dumbbell*> mDumbbells;
+
+        /// Box for the floor
+        Box* mFloor;
 
     public:
 
-        /// List of radiuses for the first spheres
-        List<decimal> sphere1Radiuses;
-
-        /// List of radiuses for the second spheres
-        List<decimal> sphere2Radiuses;
+        // -------------------- Methods -------------------- //
 
         /// Constructor
-        SphereVsSphereNarrowPhaseInfoBatch(MemoryAllocator& allocator, OverlappingPairs& overlappingPairs);
+        BoxTowerScene(const std::string& name, EngineSettings& settings);
 
         /// Destructor
-        virtual ~SphereVsSphereNarrowPhaseInfoBatch() override = default;
+        virtual ~BoxTowerScene() override;
 
-        /// Add shapes to be tested during narrow-phase collision detection into the batch
-        virtual void addNarrowPhaseInfo(uint64 airId, uint64 pairIndex, Entity collider1, Entity collider2, CollisionShape* shape1,
-                                        CollisionShape* shape2, const Transform& shape1Transform,
-                                        const Transform& shape2Transform, bool needToReportContacts, MemoryAllocator& shapeAllocator) override;
-
-        // Initialize the containers using cached capacity
-        virtual void reserveMemory() override;
-
-        /// Clear all the objects in the batch
-        virtual void clear() override;
+        /// Reset the scene
+        virtual void reset() override;
 };
 
 }
 
 #endif
-

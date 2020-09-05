@@ -24,15 +24,17 @@
 ********************************************************************************/
 
 // Libraries
-#include "CubeStackScene.h"
+#include "BoxTowerScene.h"
 
 // Namespaces
 using namespace openglframework;
-using namespace cubestackscene;
+using namespace boxtowerscene;
 
 // Constructor
-CubeStackScene::CubeStackScene(const std::string& name, EngineSettings& settings)
-      : SceneDemo(name, settings, true, SCENE_RADIUS) {
+BoxTowerScene::BoxTowerScene(const std::string& name, EngineSettings& settings)
+       : SceneDemo(name, settings, true, SCENE_RADIUS) {
+
+    std::string meshFolderPath("meshes/");
 
     // Compute the radius and the center of the scene
     openglframework::Vector3 center(0, 5, 0);
@@ -41,7 +43,7 @@ CubeStackScene::CubeStackScene(const std::string& name, EngineSettings& settings
     setScenePosition(center, SCENE_RADIUS);
 
     // Gravity vector in the physics world
-    rp3d::Vector3 gravity(0, rp3d::decimal(-9.81), 0);
+    rp3d::Vector3 gravity(0, -9.81f, 0);
 
     rp3d::PhysicsWorld::WorldSettings worldSettings;
     worldSettings.worldName = name;
@@ -58,38 +60,40 @@ CubeStackScene::CubeStackScene(const std::string& name, EngineSettings& settings
     physicsWorld->setEventListener(this);
     mPhysicsWorld = physicsWorld;
 
-    // Create all the cubes of the scene
-    for (int i=1; i<=NB_FLOORS; i++) {
+    // Create all the boxes of the scene
+    for (int i=0; i<NB_BOXES; i++) {
 
-        for (int j=0; j<i; j++) {
+        // Create a sphere and a corresponding rigid in the physics world
+        Box* box = new Box(true, BOX_SIZE, mPhysicsCommon, mPhysicsWorld, mMeshFolderPath);
 
-            // Create a cube and a corresponding rigid in the physics world
-            Box* cube = new Box(true, BOX_SIZE, mPhysicsCommon, mPhysicsWorld, mMeshFolderPath);
+        // Set the box color
+        box->setColor(mObjectColorDemo);
+        box->setSleepingColor(mSleepingColorDemo);
 
-            // Set the box color
-            cube->setColor(mObjectColorDemo);
-            cube->setSleepingColor(mSleepingColorDemo);
+        // Change the material properties of the rigid body
+        rp3d::Material& material = box->getCollider()->getMaterial();
+        material.setBounciness(rp3d::decimal(0.2));
 
-            // Change the material properties of the rigid body
-            rp3d::Material& material = cube->getCollider()->getMaterial();
-            material.setBounciness(rp3d::decimal(0.4));
-
-            // Add the box the list of box in the scene
-            mBoxes.push_back(cube);
-            mPhysicsObjects.push_back(cube);
-        }
+        // Add the sphere the list of boxes in the scene
+        mBoxes.push_back(box);
+		mPhysicsObjects.push_back(box);
     }
 
-    // ------------------------- FLOOR ----------------------- //
+    // ---------- Create the floor ---------
 
-    // Create the floor
     mFloor = new Box(true, FLOOR_SIZE, mPhysicsCommon, mPhysicsWorld, mMeshFolderPath);
+	mPhysicsObjects.push_back(mFloor);
+
+    // Set the box color
     mFloor->setColor(mFloorColorDemo);
     mFloor->setSleepingColor(mFloorColorDemo);
 
     // The floor must be a static rigid body
     mFloor->getRigidBody()->setType(rp3d::BodyType::STATIC);
-    mPhysicsObjects.push_back(mFloor);
+
+    // Change the material properties of the rigid body
+    rp3d::Material& material = mFloor->getCollider()->getMaterial();
+    material.setBounciness(rp3d::decimal(0.2));
 
     // Get the physics engine parameters
     mEngineSettings.isGravityEnabled = mPhysicsWorld->isGravityEnabled();
@@ -104,53 +108,53 @@ CubeStackScene::CubeStackScene(const std::string& name, EngineSettings& settings
 }
 
 // Destructor
-CubeStackScene::~CubeStackScene() {
+BoxTowerScene::~BoxTowerScene() {
 
-    // Destroy all the cubes of the scene
-    for (std::vector<Box*>::iterator it = mBoxes.begin(); it != mBoxes.end(); ++it) {
+    // Destroy all the physics objects of the scene
+    for (std::vector<PhysicsObject*>::iterator it = mPhysicsObjects.begin(); it != mPhysicsObjects.end(); ++it) {
 
         // Destroy the corresponding rigid body from the physics world
         mPhysicsWorld->destroyRigidBody((*it)->getRigidBody());
 
-        // Destroy the cube
+        // Destroy the object
         delete (*it);
     }
 
-    // Destroy the rigid body of the floor
-    mPhysicsWorld->destroyRigidBody(mFloor->getRigidBody());
-
-    // Destroy the floor
-    delete mFloor;
-
     // Destroy the physics world
-    mPhysicsCommon.destroyPhysicsWorld(mPhysicsWorld);
+    mPhysicsCommon.destroyPhysicsWorld(static_cast<rp3d::PhysicsWorld*>(mPhysicsWorld));
 }
 
-// Reset the scene
-void CubeStackScene::reset() {
+/// Reset the scene
+void BoxTowerScene::reset() {
 
     SceneDemo::reset();
 
-    int index = 0;
-    for (int i=NB_FLOORS; i > 0; i--) {
+    float distFromCenter = 4.0f;
 
-        for (int j=0; j<i; j++) {
+    bool rotated = false;
+    int floorIndex = 0;
 
-            // Create all the cubes of the scene
-            Box* box = mBoxes[index];
+    // Create all the boxes of the scene
+    for (uint i = 0; i<NB_BOXES; i++) {
 
-            // Position of the cubes
-            rp3d::Vector3 position((-i * 0.5f + j) * (0.1f + BOX_SIZE.x),
-                                  BOX_SIZE.y + (NB_FLOORS - i) * (BOX_SIZE.y + 0.1f),
-                                  0);
+        rp3d::Vector3 position = rp3d::Vector3(i % 2 == 0 ? -distFromCenter : distFromCenter, 4.0f + (floorIndex * (BOX_SIZE.y + 0.1f)), 0.0f);
+        rp3d::Quaternion orientation = rp3d::Quaternion::identity();
 
-            box->setTransform(rp3d::Transform(position, rp3d::Quaternion::identity()));
-            box->getRigidBody()->setLinearVelocity(rp3d::Vector3::zero());
-            box->getRigidBody()->setAngularVelocity(rp3d::Vector3::zero());
+        if (rotated) {
+           orientation = rp3d::Quaternion::fromEulerAngles(0, M_PI / 2, 0);
+           //orientation = rp3d::Quaternion::fromEulerAngles(0.01f, M_PI / 2, 0);
+           position = rp3d::Vector3(0, 3.0f + (floorIndex * (BOX_SIZE.y + 0.2f)), i % 2 == 0 ? -distFromCenter : distFromCenter);
+        }
 
-            index++;
+        mBoxes[i]->setTransform(rp3d::Transform(position, orientation));
+
+        if (i % 2 == 1) {
+            rotated = !rotated;
+            floorIndex++;
         }
     }
 
-    mFloor->setTransform(rp3d::Transform(rp3d::Vector3::zero(), rp3d::Quaternion::identity()));
+    // ---------- Create the triangular mesh ---------- //
+
+    mFloor->setTransform(rp3d::Transform::identity());
 }

@@ -57,7 +57,7 @@ class RigidBody : public CollisionBody {
         void setIsSleeping(bool isSleeping);
 
         /// Update whether the current overlapping pairs where this body is involed are active or not
-        void updateOverlappingPairs();
+        void resetOverlappingPairs();
 
         /// Compute and return the local-space center of mass of the body using its colliders
         Vector3 computeCenterOfMass() const;
@@ -65,8 +65,8 @@ class RigidBody : public CollisionBody {
         /// Compute the local-space inertia tensor and total mass of the body using its colliders
         void computeMassAndInertiaTensorLocal(Vector3& inertiaTensorLocal, decimal& totalMass) const;
 
-        /// Return the inverse of the inertia tensor in world coordinates.
-        static const Matrix3x3 getWorldInertiaTensorInverse(PhysicsWorld& world, Entity bodyEntity);
+        /// Compute the inverse of the inertia tensor in world coordinates.
+        static void computeWorldInertiaTensorInverse(const Matrix3x3& orientation, const Vector3& inverseInertiaTensorLocal, Matrix3x3& outInverseInertiaTensorWorld);
 
     public :
 
@@ -164,6 +164,12 @@ class RigidBody : public CollisionBody {
 
         /// Apply an external torque to the body.
         void applyTorque(const Vector3& torque);
+
+        /// Reset the accumulated force to zero
+        void resetForce();
+
+        /// Reset the accumulated torque to zero
+        void resetTorque();
 
         /// Return whether or not the body is allowed to sleep
         bool isAllowedToSleep() const;

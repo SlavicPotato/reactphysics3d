@@ -32,7 +32,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
-#include <reactphysics3d/containers/List.h>
+#include <reactphysics3d/containers/Array.h>
 
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
@@ -44,7 +44,7 @@ struct Vector2;
 
 /// Function to test if two real numbers are (almost) equal
 /// We test if two numbers a and b are such that (a-b) are in [-EPSILON; EPSILON]
-inline bool approxEqual(decimal a, decimal b, decimal epsilon = MACHINE_EPSILON) {
+RP3D_FORCE_INLINE bool approxEqual(decimal a, decimal b, decimal epsilon = MACHINE_EPSILON) {
     return (std::fabs(a - b) < epsilon);
 }
 
@@ -56,30 +56,30 @@ bool approxEqual(const Vector2& vec1, const Vector2& vec2, decimal epsilon = MAC
 
 /// Function that returns the result of the "value" clamped by
 /// two others values "lowerLimit" and "upperLimit"
-inline int clamp(int value, int lowerLimit, int upperLimit) {
+RP3D_FORCE_INLINE int clamp(int value, int lowerLimit, int upperLimit) {
     assert(lowerLimit <= upperLimit);
     return std::min(std::max(value, lowerLimit), upperLimit);
 }
 
 /// Function that returns the result of the "value" clamped by
 /// two others values "lowerLimit" and "upperLimit"
-inline decimal clamp(decimal value, decimal lowerLimit, decimal upperLimit) {
+RP3D_FORCE_INLINE decimal clamp(decimal value, decimal lowerLimit, decimal upperLimit) {
     assert(lowerLimit <= upperLimit);
     return std::min(std::max(value, lowerLimit), upperLimit);
 }
 
 /// Return the minimum value among three values
-inline decimal min3(decimal a, decimal b, decimal c) {
+RP3D_FORCE_INLINE decimal min3(decimal a, decimal b, decimal c) {
     return std::min(std::min(a, b), c);
 }
 
 /// Return the maximum value among three values
-inline decimal max3(decimal a, decimal b, decimal c) {
+RP3D_FORCE_INLINE decimal max3(decimal a, decimal b, decimal c) {
     return std::max(std::max(a, b), c);
 }
 
 /// Return true if two values have the same sign
-inline bool sameSign(decimal a, decimal b) {
+RP3D_FORCE_INLINE bool sameSign(decimal a, decimal b) {
     return a * b >= decimal(0.0);
 }
 
@@ -111,14 +111,14 @@ decimal computePlaneSegmentIntersection(const Vector3& segA, const Vector3& segB
 decimal computePointToLineDistance(const Vector3& linePointA, const Vector3& linePointB, const Vector3& point);
 
 /// Clip a segment against multiple planes and return the clipped segment vertices
-List<Vector3> clipSegmentWithPlanes(const Vector3& segA, const Vector3& segB,
-                                                           const List<Vector3>& planesPoints,
-                                                           const List<Vector3>& planesNormals,
+Array<Vector3> clipSegmentWithPlanes(const Vector3& segA, const Vector3& segB,
+                                                           const Array<Vector3>& planesPoints,
+                                                           const Array<Vector3>& planesNormals,
                                                            MemoryAllocator& allocator);
 
 /// Clip a polygon against multiple planes and return the clipped polygon vertices
-List<Vector3> clipPolygonWithPlanes(const List<Vector3>& polygonVertices, const List<Vector3>& planesPoints,
-                                    const List<Vector3>& planesNormals, MemoryAllocator& allocator);
+Array<Vector3> clipPolygonWithPlanes(const Array<Vector3>& polygonVertices, const Array<Vector3>& planesPoints,
+                                    const Array<Vector3>& planesNormals, MemoryAllocator& allocator);
 
 /// Project a point onto a plane that is given by a point and its unit length normal
 Vector3 projectPointOntoPlane(const Vector3& point, const Vector3& planeNormal, const Vector3& planePoint);
@@ -126,14 +126,33 @@ Vector3 projectPointOntoPlane(const Vector3& point, const Vector3& planeNormal, 
 /// Return the distance between a point and a plane (the plane normal must be normalized)
 decimal computePointToPlaneDistance(const Vector3& point, const Vector3& planeNormal, const Vector3& planePoint);
 
-/// Return true if the given number is prime
-bool isPrimeNumber(int number);
+/// Return true if a number is a power of two
+RP3D_FORCE_INLINE bool isPowerOfTwo(uint32 number) {
+   return number != 0 && !(number & (number -1));
+}
+
+/// Return the next power of two larger than the number in parameter
+RP3D_FORCE_INLINE uint32 nextPowerOfTwo32Bits(uint32 number) {
+    number--;
+    number |= number >> 1;
+    number |= number >> 2;
+    number |= number >> 4;
+    number |= number >> 8;
+    number |= number >> 16;
+    number++;
+    number += (number == 0);
+    return number;
+}
 
 /// Return an unique integer from two integer numbers (pairing function)
 /// Here we assume that the two parameter numbers are sorted such that
 /// number1 = max(number1, number2)
 /// http://szudzik.com/ElegantPairing.pdf
-uint64 pairNumbers(uint32 number1, uint32 number2);
+RP3D_FORCE_INLINE uint64 pairNumbers(uint32 number1, uint32 number2) {
+    assert(number1 == std::max(number1, number2));
+    return number1 * number1 + number1 + number2;
+}
+
 
 }
 

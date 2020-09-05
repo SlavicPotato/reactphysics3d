@@ -38,6 +38,7 @@
 #include "concavemesh/ConcaveMeshScene.h"
 #include "cubestack/CubeStackScene.h"
 #include "pile/PileScene.h"
+#include "boxtower/BoxTowerScene.h"
 
 using namespace openglframework;
 using namespace jointsscene;
@@ -49,6 +50,7 @@ using namespace heightfieldscene;
 using namespace collisiondetectionscene;
 using namespace cubestackscene;
 using namespace pilescene;
+using namespace boxtowerscene;
 
 // Initialization of static variables
 const float TestbedApplication::SCROLL_SENSITIVITY = 0.08f;
@@ -143,6 +145,11 @@ void TestbedApplication::createScenes() {
     // Pile scene
     PileScene* pileScene = new PileScene("Pile", mEngineSettings);
     mScenes.push_back(pileScene);
+    assert(mScenes.size() > 0);
+
+    // Box Tower scene
+    BoxTowerScene* boxTowerScene = new BoxTowerScene("Box Tower", mEngineSettings);
+    mScenes.push_back(boxTowerScene);
     assert(mScenes.size() > 0);
 
     const int firstSceneIndex = 0;
@@ -360,6 +367,19 @@ bool TestbedApplication::keyboard_event(int key, int scancode, int action, int m
     // Close application on escape key
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(m_glfw_window, GL_TRUE);
+        return true;
+    }
+
+    // Close application on escape key
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+
+        if (mTimer.isRunning()) {
+            pauseSimulation();
+        }
+        else {
+           playSimulation();
+        }
+
         return true;
     }
 

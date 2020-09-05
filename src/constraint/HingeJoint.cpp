@@ -34,22 +34,43 @@ using namespace reactphysics3d;
 // Constructor
 HingeJoint::HingeJoint(Entity entity, PhysicsWorld &world, const HingeJointInfo& jointInfo) : Joint(entity, world) {
 
-    const decimal lowerLimit = mWorld.mHingeJointsComponents.getLowerLimit(mEntity);
-    const decimal upperLimit = mWorld.mHingeJointsComponents.getUpperLimit(mEntity);
-    assert(lowerLimit <= decimal(0) && lowerLimit >= decimal(-2.0) * PI);
-    assert(upperLimit >= decimal(0) && upperLimit <= decimal(2.0) * PI);
+    Vector3 anchorPointBody1Local;
+    Vector3 anchorPointBody2Local;
+    Vector3 hingeLocalAxisBody1;
+    Vector3 hingeLocalAxisBody2;
 
-    // Compute the local-space anchor point for each body
     const Transform& transform1 = mWorld.mTransformComponents.getTransform(jointInfo.body1->getEntity());
     const Transform& transform2 = mWorld.mTransformComponents.getTransform(jointInfo.body2->getEntity());
-    mWorld.mHingeJointsComponents.setLocalAnchorPointBody1(mEntity, transform1.getInverse() * jointInfo.anchorPointWorldSpace);
-    mWorld.mHingeJointsComponents.setLocalAnchorPointBody2(mEntity, transform2.getInverse() * jointInfo.anchorPointWorldSpace);
 
-    // Compute the local-space hinge axis
-    Vector3 hingeLocalAxisBody1 = transform1.getOrientation().getInverse() * jointInfo.rotationAxisWorld;
-    Vector3 hingeLocalAxisBody2 = transform2.getOrientation().getInverse() * jointInfo.rotationAxisWorld;
-    hingeLocalAxisBody1.normalize();
-    hingeLocalAxisBody2.normalize();
+    if (jointInfo.isUsingLocalSpaceAnchors) {
+
+        anchorPointBody1Local = jointInfo.anchorPointBody1LocalSpace;
+        anchorPointBody2Local = jointInfo.anchorPointBody2LocalSpace;
+
+        hingeLocalAxisBody1 = jointInfo.rotationAxisBody1Local;
+        hingeLocalAxisBody2 = jointInfo.rotationAxisBody2Local;
+    }
+    else {
+
+        // Compute the local-space anchor point for each body
+        anchorPointBody1Local = transform1.getInverse() * jointInfo.anchorPointWorldSpace;
+        anchorPointBody2Local = transform2.getInverse() * jointInfo.anchorPointWorldSpace;
+
+        // Compute the local-space hinge axis
+        hingeLocalAxisBody1 = transform1.getOrientation().getInverse() * jointInfo.rotationAxisWorld;
+        hingeLocalAxisBody2 = transform2.getOrientation().getInverse() * jointInfo.rotationAxisWorld;
+        hingeLocalAxisBody1.normalize();
+        hingeLocalAxisBody2.normalize();
+    }
+
+    const decimal lowerLimit = mWorld.mHingeJointsComponents.getLowerLimit(mEntity);
+    const decimal upperLimit = mWorld.mHingeJointsComponents.getUpperLimit(mEntity);
+    assert(lowerLimit <= decimal(0) && lowerLimit >= decimal(-2.0) * PI_RP3D);
+    assert(upperLimit >= decimal(0) && upperLimit <= decimal(2.0) * PI_RP3D);
+
+    mWorld.mHingeJointsComponents.setLocalAnchorPointBody1(mEntity, anchorPointBody1Local);
+    mWorld.mHingeJointsComponents.setLocalAnchorPointBody2(mEntity, anchorPointBody2Local);
+
     mWorld.mHingeJointsComponents.setHingeLocalAxisBody1(mEntity, hingeLocalAxisBody1);
     mWorld.mHingeJointsComponents.setHingeLocalAxisBody2(mEntity, hingeLocalAxisBody2);
 
@@ -99,7 +120,7 @@ void HingeJoint::setMinAngleLimit(decimal lowerLimit) {
 
     const decimal limit = mWorld.mHingeJointsComponents.getLowerLimit(mEntity);
 
-    assert(limit <= decimal(0.0) && limit >= decimal(-2.0) * PI);
+    assert(limit <= decimal(0.0) && limit >= decimal(-2.0) * PI_RP3D);
 
     if (lowerLimit != limit) {
 
@@ -118,7 +139,7 @@ void HingeJoint::setMaxAngleLimit(decimal upperLimit) {
 
     const decimal limit = mWorld.mHingeJointsComponents.getUpperLimit(mEntity);
 
-    assert(limit >= decimal(0) && limit <= decimal(2.0) * PI);
+    assert(limit >= decimal(0) && limit <= decimal(2.0) * PI_RP3D);
 
     if (upperLimit != limit) {
 

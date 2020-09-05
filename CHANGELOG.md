@@ -1,5 +1,33 @@
 # Changelog
 
+## Release candidate
+
+Note that this release contains some public API changes. Please read carefully the following changes before upgrading to this new version and
+do not hesitate to take a look at the user manual.
+
+### Added
+
+ - Method RigidBody::resetForce() to reset the accumulated external force on a rigid body has beend added
+ - Method RigidBody::resetTorque() to reset the accumulated external torque on a rigid body has beend added
+ - Constructors with local-space anchor/axis have been added to BallAndSocketJointInfo, HingeJointInfo, FixedJointInfo and SliderJointInfo classes
+ - Robustness of polyhedron vs polyhedron collision detection has been improved in SAT algorithm (face contacts are favored over edge-edge contacts for better stability)
+
+### Changed
+
+ - Rolling resistance constraint is not solved anymore in the solver. Angular damping needs to be used instead to simulate this
+ - The List class has been renamed to Array
+
+### Removed
+
+ - Method Material::getRollingResistance() has been removed (angular damping has to be used instead of rolling resistance)
+ - Method Material::setRollingResistance() has been removed (angular damping has to be used instead of rolling resistance)
+
+### Fixed
+
+- Issue [#165](https://github.com/DanielChappuis/reactphysics3d/issues/165) with order of contact manifolds in islands creation has been fixed
+- Issue with concave vs convex shape collision detection has been fixed
+- Issue with edge vs edge collision has been fixed in SAT algorithm (wrong contact normal was computed)
+
 ## Version 0.8.0 (May 31, 2020)
 
 Note that this release contains some public API changes. Please read carefully the following changes before upgrading to this new version and

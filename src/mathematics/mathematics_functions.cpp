@@ -221,20 +221,20 @@ decimal reactphysics3d::computePointToLineDistance(const Vector3& linePointA, co
 
 // Clip a segment against multiple planes and return the clipped segment vertices
 // This method implements the Sutherland–Hodgman clipping algorithm
-List<Vector3> reactphysics3d::clipSegmentWithPlanes(const Vector3& segA, const Vector3& segB,
-                                                           const List<Vector3>& planesPoints,
-                                                           const List<Vector3>& planesNormals,
+Array<Vector3> reactphysics3d::clipSegmentWithPlanes(const Vector3& segA, const Vector3& segB,
+                                                           const Array<Vector3>& planesPoints,
+                                                           const Array<Vector3>& planesNormals,
                                                            MemoryAllocator& allocator) {
     assert(planesPoints.size() == planesNormals.size());
 
-    List<Vector3> inputVertices(allocator, 2);
-    List<Vector3> outputVertices(allocator, 2);
+    Array<Vector3> inputVertices(allocator, 2);
+    Array<Vector3> outputVertices(allocator, 2);
 
     inputVertices.add(segA);
     inputVertices.add(segB);
 
     // For each clipping plane
-    for (uint p=0; p<planesPoints.size(); p++) {
+    for (uint32 p=0; p<planesPoints.size(); p++) {
 
         // If there is no more vertices, stop
         if (inputVertices.size() == 0) return inputVertices;
@@ -296,24 +296,24 @@ List<Vector3> reactphysics3d::clipSegmentWithPlanes(const Vector3& segA, const V
 
 // Clip a polygon against multiple planes and return the clipped polygon vertices
 // This method implements the Sutherland–Hodgman clipping algorithm
-List<Vector3> reactphysics3d::clipPolygonWithPlanes(const List<Vector3>& polygonVertices, const List<Vector3>& planesPoints,
-                                                    const List<Vector3>& planesNormals, MemoryAllocator& allocator) {
+Array<Vector3> reactphysics3d::clipPolygonWithPlanes(const Array<Vector3>& polygonVertices, const Array<Vector3>& planesPoints,
+                                                    const Array<Vector3>& planesNormals, MemoryAllocator& allocator) {
 
     assert(planesPoints.size() == planesNormals.size());
 
-        uint nbMaxElements = polygonVertices.size() + planesPoints.size();
-        List<Vector3> inputVertices(allocator, nbMaxElements);
-        List<Vector3> outputVertices(allocator, nbMaxElements);
+        uint32 nbMaxElements = polygonVertices.size() + planesPoints.size();
+        Array<Vector3> inputVertices(allocator, nbMaxElements);
+        Array<Vector3> outputVertices(allocator, nbMaxElements);
 
         inputVertices.addRange(polygonVertices);
 
         // For each clipping plane
-        for (uint p=0; p<planesPoints.size(); p++) {
+        for (uint32 p=0; p<planesPoints.size(); p++) {
 
             outputVertices.clear();
 
-            uint nbInputVertices = inputVertices.size();
-            uint vStart = nbInputVertices - 1;
+            uint32 nbInputVertices = inputVertices.size();
+            uint32 vStart = nbInputVertices - 1;
 
             // For each edge of the polygon
             for (uint vEnd = 0; vEnd<nbInputVertices; vEnd++) {
@@ -379,37 +379,3 @@ Vector3 reactphysics3d::projectPointOntoPlane(const Vector3& point, const Vector
 decimal reactphysics3d::computePointToPlaneDistance(const Vector3& point, const Vector3& planeNormal, const Vector3& planePoint) {
     return planeNormal.dot(point - planePoint);
 }
-
-// Return true if the given number is prime
-bool reactphysics3d::isPrimeNumber(int number) {
-
-    // If it's a odd number
-    if ((number & 1) != 0) {
-
-        int limit = static_cast<int>(std::sqrt(number));
-
-        for (int divisor = 3; divisor <= limit; divisor += 2) {
-
-            // If we have found a divisor
-            if ((number % divisor) == 0) {
-
-                // It is not a prime number
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    return number == 2;
-}
-
-// Return an unique integer from two integer numbers (pairing function)
-/// Here we assume that the two parameter numbers are sorted such that
-/// number1 = max(number1, number2)
-/// http://szudzik.com/ElegantPairing.pdf
-uint64 reactphysics3d::pairNumbers(uint32 number1, uint32 number2) {
-    assert(number1 == std::max(number1, number2));
-    return number1 * number1 + number1 + number2;
-}
-
