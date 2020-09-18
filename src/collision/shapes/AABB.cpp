@@ -68,15 +68,15 @@ void AABB::mergeTwoAABBs(const AABB& aabb1, const AABB& aabb2) {
 // Return true if the current AABB contains the AABB given in parameter
 bool AABB::contains(const AABB& aabb) const {
 
-    bool isInside = true;
-    isInside = isInside && mMinCoordinates.x <= aabb.mMinCoordinates.x;
-    isInside = isInside && mMinCoordinates.y <= aabb.mMinCoordinates.y;
-    isInside = isInside && mMinCoordinates.z <= aabb.mMinCoordinates.z;
+    if (mMinCoordinates.x <= aabb.mMinCoordinates.x &&
+        mMinCoordinates.y <= aabb.mMinCoordinates.y &&
+        mMinCoordinates.z <= aabb.mMinCoordinates.z &&
+        mMaxCoordinates.x >= aabb.mMaxCoordinates.x &&
+        mMaxCoordinates.y >= aabb.mMaxCoordinates.y &&
+        mMaxCoordinates.z >= aabb.mMaxCoordinates.z)
+        return true;
 
-    isInside = isInside && mMaxCoordinates.x >= aabb.mMaxCoordinates.x;
-    isInside = isInside && mMaxCoordinates.y >= aabb.mMaxCoordinates.y;
-    isInside = isInside && mMaxCoordinates.z >= aabb.mMaxCoordinates.z;
-    return isInside;
+    return false;
 }
 
 // Create and return an AABB for a triangle
