@@ -69,8 +69,8 @@ CollisionDetectionSystem::CollisionDetectionSystem(PhysicsWorld* world, Collider
                      mPreviousContactManifolds(&mContactManifolds1), mCurrentContactManifolds(&mContactManifolds2),
                      mContactPoints1(mMemoryManager.getPoolAllocator()), mContactPoints2(mMemoryManager.getPoolAllocator()),
                      mPreviousContactPoints(&mContactPoints1), mCurrentContactPoints(&mContactPoints2), mCollisionBodyContactPairsIndices(mMemoryManager.getSingleFrameAllocator()),
-					 m_collisionCheckFunc(nullptr) {
-
+                     m_collisionCheckFunc(nullptr),
+                     mNbPreviousPotentialContactManifolds(0), mNbPreviousPotentialContactPoints(0) {
 
 #ifdef IS_RP3D_PROFILING_ENABLED
 
@@ -602,8 +602,8 @@ void CollisionDetectionSystem::computeNarrowPhase() {
     // Swap the previous and current contacts arrays
     swapPreviousAndCurrentContacts();
 
-    mPotentialContactManifolds.reserve(mPreviousContactManifolds->size());
-    mPotentialContactPoints.reserve(mPreviousContactPoints->size());
+    mPotentialContactManifolds.reserve(mNbPreviousPotentialContactManifolds);
+    mPotentialContactPoints.reserve(mNbPreviousPotentialContactPoints);
 
     // Test the narrow-phase collision detection on the batches to be tested
     testNarrowPhaseCollision(mNarrowPhaseInput, true, allocator);
@@ -885,6 +885,9 @@ void CollisionDetectionSystem::createContacts() {
     mPreviousContactPoints->clear();
     mPreviousContactManifolds->clear();
     mPreviousContactPairs->clear();
+
+    mNbPreviousPotentialContactManifolds = mPotentialContactManifolds.capacity();
+    mNbPreviousPotentialContactPoints = mPotentialContactPoints.capacity();
 
     // Reset the potential contacts
     mPotentialContactPoints.clear(true);

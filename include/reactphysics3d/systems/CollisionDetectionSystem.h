@@ -167,6 +167,13 @@ class CollisionDetectionSystem {
         /// Collision filtering callback function
         collisionCheckFunc_t m_collisionCheckFunc;
 
+        /// Number of potential contact manifolds in the previous frame
+        uint32 mNbPreviousPotentialContactManifolds;
+
+        /// Number of potential contact points in the previous frame
+        uint32 mNbPreviousPotentialContactPoints;
+
+
 #ifdef IS_RP3D_PROFILING_ENABLED
 
     /// Pointer to the profiler
