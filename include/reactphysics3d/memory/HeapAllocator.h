@@ -30,7 +30,7 @@
 #include <reactphysics3d/configuration.h>
 #include <reactphysics3d/memory/MemoryAllocator.h>
 #include <cassert>
-#include <mutex>
+//#include <mutex>
 #include <reactphysics3d/containers/Map.h>
 
 /// ReactPhysics3D namespace
@@ -90,7 +90,7 @@ class HeapAllocator : public MemoryAllocator {
         // -------------------- Attributes -------------------- //
 
         // Mutex
-        std::mutex mMutex;
+        //std::mutex mMutex;
 
         /// Base memory allocator
         MemoryAllocator& mBaseAllocator;

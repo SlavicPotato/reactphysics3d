@@ -238,7 +238,10 @@ RP3D_FORCE_INLINE void PhysicsCommon::setLogger(Logger* logger) {
 }
 
 // Use this macro to log something
-#define RP3D_LOG(physicsWorldName, level, category, message, filename, lineNumber) if (reactphysics3d::PhysicsCommon::getLogger() != nullptr) PhysicsCommon::getLogger()->log(level, physicsWorldName, category, message, filename, lineNumber)
+//#define RP3D_LOG(physicsWorldName, level, category, message, filename, lineNumber) if (reactphysics3d::PhysicsCommon::getLogger() != nullptr) PhysicsCommon::getLogger()->log(level, physicsWorldName, category, message, filename, lineNumber)
+
+#define RP3D_LOG(physicsWorldName, level, category, message, filename, lineNumber)
+
 
 }
 

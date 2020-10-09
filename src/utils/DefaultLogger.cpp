@@ -98,7 +98,7 @@ void DefaultLogger::log(Level level, const std::string& physicsWorldName, Catego
     auto now = std::chrono::system_clock::now();
     auto time = std::chrono::system_clock::to_time_t(now);
 
-    mMutex.lock();
+    //mMutex.lock();
 
     // For each destination
     for (auto it = mDestinations.begin(); it != mDestinations.end(); ++it) {
@@ -106,5 +106,5 @@ void DefaultLogger::log(Level level, const std::string& physicsWorldName, Catego
         (*it)->write(time, physicsWorldName, message, level, category, filename, lineNumber);
     }
 
-    mMutex.unlock();
+    //mMutex.unlock();
 }

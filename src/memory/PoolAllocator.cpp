@@ -101,7 +101,7 @@ PoolAllocator::~PoolAllocator() {
 void* PoolAllocator::allocate(size_t size) {
 
     // Lock the method with a mutex
-    std::lock_guard<std::mutex> lock(mMutex);
+    //std::lock_guard<std::mutex> lock(mMutex);
 
     assert(size > 0);
 
@@ -179,7 +179,7 @@ void* PoolAllocator::allocate(size_t size) {
 void PoolAllocator::release(void* pointer, size_t size) {
 
     // Lock the method with a mutex
-    std::lock_guard<std::mutex> lock(mMutex);
+    //std::lock_guard<std::mutex> lock(mMutex);
 
     assert(size > 0);
 

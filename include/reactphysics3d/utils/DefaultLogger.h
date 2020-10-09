@@ -35,7 +35,8 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <mutex>
+#include <chrono>
+//#include <mutex>
 
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
@@ -451,7 +452,7 @@ class DefaultLogger : public Logger {
         Map<Format, Formatter*> mFormatters;
 
         /// Mutex
-        std::mutex mMutex;
+        //std::mutex mMutex;
 
         // -------------------- Methods -------------------- //
 

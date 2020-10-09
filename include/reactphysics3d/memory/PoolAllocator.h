@@ -29,7 +29,7 @@
 // Libraries
 #include <reactphysics3d/configuration.h>
 #include <reactphysics3d/memory/MemoryAllocator.h>
-#include <mutex>
+//#include <mutex>
 
 /// ReactPhysics3D namespace
 namespace reactphysics3d {
@@ -103,7 +103,7 @@ class PoolAllocator : public MemoryAllocator {
         static bool isMapSizeToHeadIndexInitialized;
 
         /// Mutex
-        std::mutex mMutex;
+        //std::mutex mMutex;
 
         /// Base memory allocator
         MemoryAllocator& mBaseAllocator;
