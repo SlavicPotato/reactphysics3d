@@ -329,10 +329,10 @@ void PhysicsWorld::update(decimal timeStep) {
 
     RP3D_PROFILE("PhysicsWorld::update()", mProfiler);
 
-    // Reset the debug renderer
+    /*// Reset the debug renderer
     if (mIsDebugRenderingEnabled) {
         mDebugRenderer.reset();
-    }
+    }*/
 
     // Compute the collision detection
     mCollisionDetection.computeCollisionDetection();
@@ -380,10 +380,10 @@ void PhysicsWorld::update(decimal timeStep) {
 
     mProcessContactPairsOrderIslands.clear(true);
 
-    // Generate debug rendering primitives (if enabled)
+    /*// Generate debug rendering primitives (if enabled)
     if (mIsDebugRenderingEnabled) {
         mDebugRenderer.computeDebugRenderingPrimitives(*this);
-    }
+    }*/
 
     // Reset the single frame memory allocator
     mMemoryManager.resetFrameAllocator();

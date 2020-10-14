@@ -166,6 +166,54 @@ void DebugRenderer::drawSphere(const Vector3& position, decimal radius, uint32 c
 	}
 }
 
+/// Draw a sphere
+void DebugRenderer::drawSphereLow(const Vector3& position, decimal radius, uint32 color) {
+
+    Vector3 vertices[(NB_SECTORS_SPHERE_LOW + 1) * (NB_STACKS_SPHERE_LOW + 1) + (NB_SECTORS_SPHERE_LOW + 1)];
+	
+	// Vertices
+    const decimal sectorStep = 2 * PI_RP3D / NB_SECTORS_SPHERE_LOW;
+    const decimal stackStep = PI_RP3D / NB_STACKS_SPHERE_LOW;
+	
+	for (uint i = 0; i <= NB_STACKS_SPHERE_LOW; i++) {
+
+        const decimal stackAngle = PI_RP3D / 2 - i * stackStep;
+		const decimal radiusCosStackAngle = radius * std::cos(stackAngle);
+		const decimal z = radius * std::sin(stackAngle);
+
+        for (uint j = 0; j <= NB_SECTORS_SPHERE_LOW; j++) {
+		
+			const decimal sectorAngle = j * sectorStep;
+			const decimal x = radiusCosStackAngle * std::cos(sectorAngle);
+			const decimal y = radiusCosStackAngle * std::sin(sectorAngle);
+
+            vertices[i * (NB_SECTORS_SPHERE_LOW + 1) + j] = position + Vector3(x, y, z);
+		}
+	}
+
+	// Faces
+	for (uint i = 0; i < NB_STACKS_SPHERE_LOW; i++) {
+
+		uint a1 = i * (NB_SECTORS_SPHERE_LOW + 1);
+		uint a2 = a1 + NB_SECTORS_SPHERE_LOW + 1;
+
+		for (uint j = 0; j < NB_SECTORS_SPHERE_LOW; j++, a1++, a2++) {
+		
+			// 2 triangles per sector except for the first and last stacks
+
+			if (i != 0) {
+			
+				mTriangles.add(DebugTriangle(vertices[a1], vertices[a2], vertices[a1 + 1], color));
+			}
+
+			if (i != (NB_STACKS_SPHERE - 1)) {
+				
+				mTriangles.add(DebugTriangle(vertices[a1 + 1], vertices[a2], vertices[a2 + 1], color));
+			}
+		}
+	}
+}
+
 // Draw a capsule
 void DebugRenderer::drawCapsule(const Transform& transform, decimal radius, decimal height, uint32 color) {
 
@@ -403,16 +451,20 @@ void DebugRenderer::computeDebugRenderingPrimitives(const PhysicsWorld& world) {
     const uint nbCollisionBodies = world.getNbCollisionBodies();
     const uint nbRigidBodies = world.getNbRigidBodies();
 
+	const auto nbBodies = nbCollisionBodies + nbRigidBodies;
+
     // For each body of the world
-    for (uint b = 0; b < nbCollisionBodies + nbRigidBodies; b++) {
+    for (uint b = 0; b < nbBodies; b++) {
 
 		// Get a body
         const CollisionBody* body = b < nbCollisionBodies ? world.getCollisionBody(b) : world.getRigidBody(b - nbCollisionBodies);
 
         if (body->isActive()) {
 
+			const auto nbColliders = body->getNbColliders();
+
             // For each collider of the body
-            for (uint c = 0; c < body->getNbColliders(); c++) {
+            for (uint c = 0; c < nbColliders; c++) {
 
                 // Get a collider
                 const Collider* collider = body->getCollider(c);
@@ -444,30 +496,37 @@ void DebugRenderer::computeDebugRenderingPrimitives(const PhysicsWorld& world) {
 // Called when some contacts occur
 void DebugRenderer::onContact(const CollisionCallback::CallbackData& callbackData) {
 
+	bool showPoints = getIsDebugItemDisplayed(DebugItem::CONTACT_POINT);
+	bool showNormals = getIsDebugItemDisplayed(DebugItem::CONTACT_NORMAL);
+
 	// If we need to draw contact points
-    if (getIsDebugItemDisplayed(DebugItem::CONTACT_POINT) || getIsDebugItemDisplayed(DebugItem::CONTACT_NORMAL)) {
+    if (showPoints || showNormals) {
+
+		auto nbContactPairs = callbackData.getNbContactPairs();
 
 		// For each contact pair
-		for (uint p = 0; p < callbackData.getNbContactPairs(); p++) {
+		for (uint p = 0; p < nbContactPairs; p++) {
 
 			CollisionCallback::ContactPair contactPair = callbackData.getContactPair(p);
 
             if (contactPair.getEventType() != CollisionCallback::ContactPair::EventType::ContactExit) {
 
+				auto nbContactPoints = contactPair.getNbContactPoints();
+
                 // For each contact point of the contact pair
-                for (uint c = 0; c < contactPair.getNbContactPoints(); c++) {
+                for (uint c = 0; c < nbContactPoints; c++) {
 
                     CollisionCallback::ContactPoint contactPoint = contactPair.getContactPoint(c);
 
                     Vector3 point = contactPair.getCollider1()->getLocalToWorldTransform() * contactPoint.getLocalPointOnCollider1();
 
-                    if (getIsDebugItemDisplayed(DebugItem::CONTACT_POINT)) {
+                    if (showPoints) {
 
                         // Contact point
-                        drawSphere(point, mContactPointSphereRadius, mMapDebugItemWithColor[DebugItem::CONTACT_POINT]);
+						drawSphereLow(point, mContactPointSphereRadius, mMapDebugItemWithColor[DebugItem::CONTACT_POINT]);
                     }
 
-                    if (getIsDebugItemDisplayed(DebugItem::CONTACT_NORMAL)) {
+                    if (showNormals) {
 
                         // Contact normal
                         mLines.add(DebugLine(point,  point + contactPoint.getWorldNormal() * mContactNormalLength, mMapDebugItemWithColor[DebugItem::CONTACT_NORMAL]));

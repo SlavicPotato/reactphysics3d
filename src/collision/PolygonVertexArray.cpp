@@ -71,7 +71,7 @@ uint PolygonVertexArray::getVertexIndexInFace(uint faceIndex, uint noVertexInFac
 
     assert(noVertexInFace < face->nbVertices);
 
-    const void* vertexIndexPointer = mIndicesStart + (face->indexBase + noVertexInFace) * mIndicesStride;
+    const void* vertexIndexPointer = mIndicesStart + (uintptr_t(face->indexBase) + noVertexInFace) * mIndicesStride;
 
     if (mIndexDataType == PolygonVertexArray::IndexDataType::INDEX_INTEGER_TYPE) {
         return *((uint*)vertexIndexPointer);

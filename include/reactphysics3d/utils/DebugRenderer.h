@@ -147,6 +147,10 @@ class DebugRenderer : public EventListener {
 
 		/// Number of stacks used to draw a sphere or a capsule
         static constexpr int NB_STACKS_SPHERE = 10;
+        
+        static constexpr int NB_SECTORS_SPHERE_LOW = 9;
+
+        static constexpr int NB_STACKS_SPHERE_LOW = 5;
 
         /// Default radius of the sphere displayed to represent contact points
         static constexpr decimal DEFAULT_CONTACT_POINT_SPHERE_RADIUS = decimal(0.1);
@@ -187,6 +191,9 @@ class DebugRenderer : public EventListener {
 
 		/// Draw a sphere
 		void drawSphere(const Vector3& position, decimal radius, uint32 color);
+
+        /// Draw a low poly sphere
+        void drawSphereLow(const Vector3& position, decimal radius, uint32 color);
 
 		/// Draw a capsule
 		void drawCapsule(const Transform& transform, decimal radius, decimal height, uint32 color);
