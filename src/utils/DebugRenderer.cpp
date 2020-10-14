@@ -206,7 +206,7 @@ void DebugRenderer::drawSphereLow(const Vector3& position, decimal radius, uint3
 				mTriangles.add(DebugTriangle(vertices[a1], vertices[a2], vertices[a1 + 1], color));
 			}
 
-			if (i != (NB_STACKS_SPHERE - 1)) {
+			if (i != (NB_STACKS_SPHERE_LOW - 1)) {
 				
 				mTriangles.add(DebugTriangle(vertices[a1 + 1], vertices[a2], vertices[a2 + 1], color));
 			}
